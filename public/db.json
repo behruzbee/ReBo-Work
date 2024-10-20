@@ -1,0 +1,64 @@
+{
+  "workers": [
+    {
+      "id": "47",
+      "name": "Behruz",
+      "firstName": "Baxtiyorov",
+      "age": 20,
+      "work_hours": "8h",
+      "is_working": false,
+      "position": "marketolog",
+      "hourly_rate": 9722.22222,
+      "work_histories": [],
+      "start_of_working": "9:00",
+      "end_of_working": "21:00",
+      "monthly_worked_minutes": 0,
+      "monthly_earnings": 0
+    },
+    {
+      "id": "50",
+      "name": "Sherzod",
+      "firstName": "",
+      "age": 25,
+      "work_hours": "8h",
+      "is_working": false,
+      "position": "developer",
+      "hourly_rate": 13888.8889,
+      "work_histories": [],
+      "start_of_working": "9:00",
+      "end_of_working": "21:00",
+      "monthly_worked_minutes": 0,
+      "monthly_earnings": 0
+    },
+    {
+      "id": "77",
+      "name": "Farxod",
+      "firstName": "",
+      "age": 25,
+      "work_hours": "8h",
+      "is_working": false,
+      "position": "developer",
+      "hourly_rate": 11775.22332,
+      "work_histories": [],
+      "start_of_working": "9:00",
+      "end_of_working": "21:00",
+      "monthly_worked_minutes": 0,
+      "monthly_earnings": 0
+    },
+    {
+      "id": "55",
+      "name": "Polina",
+      "firstName": "",
+      "age": 25,
+      "work_hours": "8h",
+      "is_working": false,
+      "position": "developer",
+      "hourly_rate": 11775.22332,
+      "work_histories": [],
+      "start_of_working": "9:00",
+      "end_of_working": "21:00",
+      "monthly_worked_minutes": 0,
+      "monthly_earnings": 0
+    }
+  ]
+}
