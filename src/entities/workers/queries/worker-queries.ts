@@ -44,7 +44,7 @@ export const useUpdateWorker = () => {
   return useMutation<IWorker, Error, UpdateWorkerVariables>({
     mutationFn: ({ id }: UpdateWorkerVariables) =>
       workerCrudApi.updateWorker(id),
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['worker', variables.id] })
       queryClient.invalidateQueries({ queryKey: ['workers'] })
     },
