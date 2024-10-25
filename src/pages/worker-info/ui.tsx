@@ -5,17 +5,16 @@ import { useWorker } from '~entities/workers/queries/worker-queries';
 const WorkerInfoPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: worker, isLoading } = useWorker(id || '0');
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   if (isLoading) {
-    return <Loader />;
+    return <Loader color="blue" />;
   }
 
   if (!worker) {
     return <Text color="red">Worker not found</Text>;
   }
 
-  // Функция для форматирования даты
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
       day: '2-digit',
@@ -23,55 +22,72 @@ const WorkerInfoPage = () => {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false, // Используйте true для 12-часового формата
+      hour12: false,
     };
     return new Date(dateString).toLocaleString('ru-RU', options);
   };
 
-  console.log(worker);
+  // Округление значений
+  const monthlyWorkedMinutes = Math.round(worker.monthly_worked_minutes);
+  const monthlyEarnings = Math.round(worker.monthly_earnings);
+  const hourlyRate = Math.round(worker.hourly_rate);
 
   return (
-    <Container mt='lg'>
-      <Button mt='lg'  onClick={() => navigate(-1)}>ORTGA</Button>
-      <Text fw={700} style={{ fontSize: '30px', marginBottom: '20px' }}>
+    <Container mt="lg">
+      <Button
+        mt="lg"
+        onClick={() => navigate(-1)}
+        size="md"
+        style={{
+          background: 'linear-gradient(135deg, #00b4db, #0083b0)',
+          color: 'white',
+          transition: 'transform 0.2s ease',
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+      >
+        ORTGA
+      </Button>
+
+      <Text fw={700} style={{ fontSize: '30px', margin: '20px 0', color: '#3b5bdb' }}>
         {`${worker.name} ${worker.firstName}`}
       </Text>
 
-      <Grid gutter='md'>
+      <Grid gutter="md">
         <Grid.Col span={12}>
-          <Card shadow="sm" padding="lg">
-            <Text fw={700} style={{ fontSize: '22px' }}>
+          <Card shadow="lg" padding="lg" style={{ borderRadius: '12px' }}>
+            <Text fw={700} style={{ fontSize: '22px', marginBottom: '8px' }}>
               Lavozim: <Mark style={{ textTransform: 'uppercase' }}>{worker.position}</Mark>
             </Text>
-            <Text fw={700} style={{ fontSize: '22px' }}>
-              Ish holati: <Mark style={{ textTransform: 'capitalize' }}>{worker.is_working ? 'ISHDA' : 'ISHDA EMAS'}</Mark>
+            <Text fw={700} style={{ fontSize: '22px', marginBottom: '8px' }}>
+              Ish holati: <Mark color={worker.is_working ? 'green' : 'red'}>{worker.is_working ? 'ISHDA' : 'ISHDA EMAS'}</Mark>
+            </Text>
+            <Text fw={700} style={{ fontSize: '22px', marginBottom: '8px' }}>
+              Ish boshlanish vaqti: <Mark>{worker.start_of_working}</Mark>
+            </Text>
+            <Text fw={700} style={{ fontSize: '22px', marginBottom: '8px' }}>
+              Ish tugatish vaqti: <Mark>{worker.end_of_working}</Mark>
+            </Text>
+            <Text fw={700} style={{ fontSize: '22px', marginBottom: '8px' }}>
+              Ishlagan soati (1 oy ichida): <Mark>{monthlyWorkedMinutes} daqiqa</Mark>
+            </Text>
+            <Text fw={700} style={{ fontSize: '22px', marginBottom: '8px' }}>
+              Ishlagan soati puli (1 oy ichida): <Mark>{monthlyEarnings} so'm</Mark>
             </Text>
             <Text fw={700} style={{ fontSize: '22px' }}>
-              Ish boshlanish vaqti: <Mark style={{ textTransform: 'capitalize' }}>{worker.start_of_working}</Mark>
-            </Text>
-            <Text fw={700} style={{ fontSize: '22px' }}>
-              Ish tugatish vaqti: <Mark style={{ textTransform: 'capitalize' }}>{worker.end_of_working}</Mark>
-            </Text>
-            <Text fw={700} style={{ fontSize: '22px' }}>
-              Ishlagan soati (1 oy ichida): <Mark style={{ textTransform: 'capitalize' }}>{worker.monthly_worked_minutes} daqiqa</Mark>
-            </Text>
-            <Text fw={700} style={{ fontSize: '22px' }}>
-              Ishlagan soati puli (1 oy ichida): <Mark style={{ textTransform: 'capitalize' }}>{worker.monthly_earnings} so'm</Mark>
-            </Text>
-            <Text fw={700} style={{ fontSize: '22px' }}>
-              Ish soati puli: <Mark style={{ textTransform: 'capitalize' }}>{worker.hourly_rate} so'm</Mark>
+              Ish soati puli: <Mark>{hourlyRate} so'm</Mark>
             </Text>
           </Card>
         </Grid.Col>
       </Grid>
 
-      <Text fw={700} style={{ fontSize: '26px', marginTop: '30px', marginBottom: '15px' }}>
+      <Text fw={700} style={{ fontSize: '26px', margin: '30px 0 15px', color: '#3b5bdb' }}>
         ИСТОРИЯ:
       </Text>
 
-      <Table striped highlightOnHover withColumnBorders>
+      <Table striped highlightOnHover withColumnBorders style={{ borderRadius: '12px', overflow: 'hidden' }}>
         <Table.Thead>
-          <Table.Tr>
+          <Table.Tr style={{ backgroundColor: '#3b5bdb', color: 'white' }}>
             <Table.Th>Vaqt</Table.Th>
             <Table.Th>Status</Table.Th>
           </Table.Tr>
@@ -82,12 +98,8 @@ const WorkerInfoPage = () => {
               <Table.Td>{formatDate(history.date)}</Table.Td>
               <Table.Td>
                 {history.sessions.map((session, idx) => (
-                  <Text key={idx} style={{ display: 'block' }}>
-                    <Mark 
-                      color={session.check_out ? 'green' : 'orange'} 
-                      style={{ textTransform: 'capitalize' }}
-                      mr='md'
-                    >
+                  <Text key={idx} style={{ display: 'block', marginBottom: '5px' }}>
+                    <Mark color={session.check_out ? 'green' : 'orange'} style={{ textTransform: 'capitalize', marginRight: '10px' }}>
                       Kirish: {formatDate(session.check_in)}
                     </Mark>
                     {session.check_out ? (
