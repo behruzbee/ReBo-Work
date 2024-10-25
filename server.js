@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // Настройка json-server
-const apiRouter = jsonServer.router('db.json');
+const apiRouter = jsonServer.router(path.join(__dirname, 'dist', 'db.json'));
 const middlewares = jsonServer.defaults();
 app.use('/api', middlewares, apiRouter);
 
