@@ -9,11 +9,11 @@ const middlewares = jsonServer.defaults();
 app.use('/api', middlewares, apiRouter);
 
 // Обслуживание статических файлов React
-app.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Все остальные запросы перенаправляются на index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
