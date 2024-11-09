@@ -1,13 +1,128 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ReBo Working Hours</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/app/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Обработка QR Кода</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      margin: 0;
+    }
+
+    .form-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-container input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .form-container button {
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .form-container button:hover {
+      background-color: #218838;
+    }
+
+    .form-container .alert {
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Введите данные из QR-кода</h2>
+    <input type="text" id="qr_code_text" placeholder="Вставьте данные из QR" required>
+    <button id="submit-btn">Отправить</button>
+    <div class="alert" id="alert-message"></div>
+  </div>
+
+  <script>
+    document.getElementById('submit-btn').addEventListener('click', function () {
+      const qrCodeText = document.getElementById('qr_code_text').value;
+
+      if (!qrCodeText) {
+        displayAlert("Пожалуйста, вставьте данные из QR кода.", "red");
+        return;
+      }
+
+      // Предположим, что текст в формате "workerId,qrCodeText"
+      const [workerId, qrText] = qrCodeText.split(',');
+
+      if (!workerId || !qrText) {
+        displayAlert("Неверный формат данных в QR коде.", "red");
+        return;
+      }
+
+      // Получаем текущее время
+      const scanTime = new Date().toISOString();
+
+      const historyData = {
+        worker_id: workerId,
+        work_place_name: "Рабочее место", // Это можно заменить динамически
+        qr_code_text: qrText,
+        scan_time: scanTime,
+      };
+
+      // Отправка данных на сервер
+      fetch("https://rebo-work.uz/api/histories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(historyData),
+      })
+        .then(response => {
+          if (!response.ok) {
+            // Если ответ не успешен, выбрасываем ошибку
+            throw new Error(`Ошибка сервера: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          displayAlert("Данные успешно отправлены!", "green");
+          console.log("Ответ от сервера:", data);
+        })
+        .catch(error => {
+          displayAlert(`Произошла ошибка: ${error.message}`, "red");
+          console.error("Ошибка:", error);
+        });
+    });
+
+    function displayAlert(message, color) {
+      const alertDiv = document.getElementById('alert-message');
+      alertDiv.textContent = message;
+      alertDiv.style.color = color;
+    }
+  </script>
+
+</body>
 </html>
