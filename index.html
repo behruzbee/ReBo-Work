@@ -85,9 +85,25 @@
       // Получаем текущее время
       const scanTime = new Date().toISOString();
 
+      // Проверяем наличие work_place_name в localStorage
+      let workPlaceName = localStorage.getItem('work_place_name');
+      
+      if (!workPlaceName) {
+        // Если нет, спрашиваем у пользователя
+        workPlaceName = prompt("Пожалуйста, введите название рабочего места:");
+
+        if (!workPlaceName) {
+          displayAlert("Название рабочего места обязательно.", "red");
+          return;
+        }
+
+        // Сохраняем название рабочего места в localStorage
+        localStorage.setItem('work_place_name', workPlaceName);
+      }
+
       const historyData = {
         worker_id: workerId,
-        work_place_name: "Рабочее место", // Это можно заменить динамически
+        work_place_name: workPlaceName, // Используем из localStorage
         qr_code_text: qrText,
         scan_time: scanTime,
       };
