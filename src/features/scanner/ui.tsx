@@ -1,11 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Flex, Box } from "@mantine/core";
 import jsQR from "jsqr";
-import { workerCrudApi } from "~entities/workers/api/worker-api";
+import { useCreateHistory } from "~entities/workers/api/worker-api";
+import { useParams } from "react-router-dom";
 
 const Scanner = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { '*': name } = useParams();
+  const { createHistory } = useCreateHistory();
+  const [isScanningAllowed, setIsScanningAllowed] = useState(true);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -28,10 +32,10 @@ const Scanner = () => {
       .then((stream) => {
         video.srcObject = stream;
 
-        let isScanningAllowed = true;
+        let qrScanned = false; // Flag to track if QR code has been scanned already
 
         const scanQRCode = () => {
-          if (isScanningAllowed && video.readyState === video.HAVE_ENOUGH_DATA) {
+          if (!qrScanned && isScanningAllowed && video.readyState === video.HAVE_ENOUGH_DATA) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
 
@@ -41,23 +45,39 @@ const Scanner = () => {
             const code = jsQR(imageData.data, imageData.width, imageData.height);
 
             if (code) {
-              const workerId = code.data;
-              isScanningAllowed = false;
+              const { data: qrCodeText } = code;
 
-              workerCrudApi
-                .updateWorker(workerId)
-                .then(() => {
-                  alert(`Работник с ID ${workerId} успешно обновлен.`);
-                })
-                .catch((error) => {
-                  console.error("Ошибка обновления работника:", error);
-                  alert("Не удалось обновить работника.");
-                })
-                .finally(() => {
-                  setTimeout(() => {
-                    isScanningAllowed = true;
-                  }, 3000);
-                });
+              // Validate the QR code content: should contain workerId and qrCodeText
+              const [workerId, qrText] = qrCodeText.split(','); // Assuming the data is in "workerId,qrCodeText" format
+
+              if (workerId && qrText) {
+                qrScanned = true; // Mark that a QR code has been scanned
+
+                const history = {
+                  worker_id: workerId,
+                  qr_code_text: qrText,
+                  work_place_name: name || '', // Replace with the actual work place name if dynamic
+                  scan_time: new Date().toISOString(),
+                };
+
+                createHistory(history)
+                  .then(() => {
+                    alert(`История для работника с ID ${workerId} успешно добавлена.`);
+                    window.location.reload();
+                  })
+                  .catch((err) => {
+                    console.error("Ошибка добавления истории:", err);
+                    alert("Не удалось добавить историю.");
+                  })
+                  .finally(() => {
+                    setTimeout(() => {
+                      setIsScanningAllowed(true);
+                      qrScanned = false; // Reset the flag after timeout
+                    }, 3000); // Allow scanning again after 3 seconds
+                  });
+              } else {
+                console.error("Неверный формат данных в QR коде.");
+              }
             }
           }
           requestAnimationFrame(scanQRCode);
@@ -68,7 +88,7 @@ const Scanner = () => {
       .catch(() => {
         alert("Ошибка при доступе к камере");
       });
-  }, []);
+  }, [isScanningAllowed, createHistory]);
 
   return (
     <Flex
