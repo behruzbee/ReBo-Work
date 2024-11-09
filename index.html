@@ -62,7 +62,7 @@
     <h2>Введите данные из QR-кода</h2>
     <input type="text" id="qr_code_text" placeholder="Вставьте данные из QR" required>
     <button id="submit-btn">Отправить</button>
-    <a href="https://rebo-admin.netlify.app/" style="margin-top: 20px;">ishchilar ro'yxati</a>
+    <a href="https://rebo-admin.netlify.app/" style="margin-top: 20px; display: block; text-align: center;">ishchilar ro'yxati</a>
     <div class="alert" id="alert-message"></div>
   </div>
 
@@ -75,7 +75,6 @@
         return;
       }
 
-      // Предположим, что текст в формате "workerId,qrCodeText"
       const [workerId, qrText] = qrCodeText.split(',');
 
       if (!workerId || !qrText) {
@@ -83,14 +82,11 @@
         return;
       }
 
-      // Получаем текущее время
       const scanTime = new Date().toISOString();
 
-      // Проверяем наличие work_place_name в localStorage
       let workPlaceName = localStorage.getItem('work_place_name');
       
       if (!workPlaceName) {
-        // Если нет, спрашиваем у пользователя
         workPlaceName = prompt("Пожалуйста, введите название рабочего места:");
 
         if (!workPlaceName) {
@@ -98,18 +94,16 @@
           return;
         }
 
-        // Сохраняем название рабочего места в localStorage
         localStorage.setItem('work_place_name', workPlaceName);
       }
 
       const historyData = {
         worker_id: workerId,
-        work_place_name: workPlaceName, // Используем из localStorage
+        work_place_name: workPlaceName,
         qr_code_text: qrText,
         scan_time: scanTime,
       };
 
-      // Отправка данных на сервер
       fetch("https://rebo-work.uz/api/histories", {
         method: "POST",
         headers: {
@@ -119,14 +113,13 @@
       })
         .then(response => {
           if (!response.ok) {
-            // Если ответ не успешен, выбрасываем ошибку
             throw new Error(`Ошибка сервера: ${response.statusText}`);
           }
           return response.json();
         })
         .then(data => {
-          displayAlert("Данные успешно отправлены!", "green");
-          window.location.reload()
+          displayAlert("Данные успешно отправлены! Вы можете проверить их по ссылке внизу.", "green");
+          clearInput();
           console.log("Ответ от сервера:", data);
         })
         .catch(error => {
@@ -139,6 +132,10 @@
       const alertDiv = document.getElementById('alert-message');
       alertDiv.textContent = message;
       alertDiv.style.color = color;
+    }
+
+    function clearInput() {
+      document.getElementById('qr_code_text').value = '';
     }
   </script>
 
